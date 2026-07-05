@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)file:///C:/Users/22430/Downloads/craft-simulator.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Craft Simulator — Fuse 5, Ascend 8 Tiers</title>
+<style>
+  :root{
+    --bg: radial-gradient(ellipse at top, #f4c07a 0%, #e07a4a 45%, #a03854 100%);
+    --lv1:#4a90e2; --lv2:#3fbf7f; --lv3:#f2c141; --lv4:#f28c3a;
+    --lv5:#e0447a; --lv6:#a55ee0; --lv7:#3fc9e0; --lv8:#ffe14a;
+    --panel: rgba(255,255,255,0.10);
+    --panel-strong: rgba(0,0,0,0.20);
+    --border: rgba(255,255,255,0.22);
+    --text:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background-attachment:fixed;}
+  button{font-family:inherit;cursor:pointer;border:0;background:transparent;color:inherit}
+  input[type=number]{font-family:inherit;-moz-appearance:textfield}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .app{max-width:1100px;margin:0 auto;padding:24px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-badge{height:48px;width:48px;border-radius:16px;background:rgba(255,255,255,0.2);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;backdrop-filter:blur(10px)}
+  h1{margin:0;font-size:26px;letter-spacing:-0.5px;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+  .sub{opacity:0.75;font-size:13px}
+  .rate-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);
+    border:1px solid var(--border);backdrop-filter:blur(10px);border-radius:16px;padding:8px 14px;font-size:13px}
+  .rate-chip .big{color:#ffe98a;font-weight:900;font-size:18px}
+  .grid{display:grid;grid-template-columns:1fr 340px;gap:20px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);backdrop-filter:blur(20px);border:1px solid var(--border);
+    border-radius:24px;padding:22px;box-shadow:0 20px 60px -20px rgba(0,0,0,0.4)}
+  .levels{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:20px}
+  @media(max-width:700px){.levels{grid-template-columns:repeat(4,1fr)}}
+  .lv-btn{padding:8px 4px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.06);text-align:center;transition:transform .15s,box-shadow .2s;color:#fff}
+  .lv-btn:hover{transform:translateY(-2px)}
+  .lv-btn.active{transform:scale(1.05)}
+  .lv-btn .icon{font-size:20px;line-height:1}
+  .lv-btn .lbl{margin-top:4px;font-size:10px;font-weight:900}
+  .lv-btn .rate{font-size:10px;opacity:0.75}
+  .lv-btn .cnt{font-size:10px;opacity:0.6;margin-top:2px}
+  .batch{border:1px solid var(--border);background:var(--panel-strong);border-radius:16px;padding:18px}
+  .batch-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .kicker{font-size:11px;text-transform:uppercase;letter-spacing:2px;opacity:0.6}
+  .h-lg{font-size:22px;font-weight:900;margin-top:2px}
+  .h-lg .accent{color:#ffe98a}
+  .row{display:flex;gap:10px;align-items:center}
+  .sq{height:36px;width:36px;border-radius:8px;background:rgba(255,255,255,0.1);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .15s}
+  .sq:hover:not(:disabled){background:rgba(255,255,255,0.18)}
+  .sq:active{transform:scale(0.9)}
+  .sq:disabled{opacity:0.35;cursor:not-allowed}
+  input[type=range]{flex:1;accent-color:#ffe98a}
+  .num-input{width:76px;height:36px;background:rgba(255,255,255,0.1);border:1px solid var(--border);
+    border-radius:8px;color:#fff;text-align:center;font-weight:900;padding:0 6px}
+  .presets{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+  .preset{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.85);transition:all .15s}
+  .preset:hover:not(:disabled){background:rgba(255,255,255,0.15)}
+  .preset.active{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.6);color:#fff}
+  .preset:disabled{opacity:0.3;cursor:not-allowed}
+  .preset.max{border-color:rgba(255,225,74,0.6);background:rgba(255,225,74,0.2);color:#fff5c8}
+  .preset.max:hover:not(:disabled){background:rgba(255,225,74,0.32)}
+  .craft-row{margin-top:22px;display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;position:relative}
+  .craft-btn{flex:1;min-width:220px;height:64px;border-radius:20px;border:2px solid rgba(255,255,255,0.4);
+    background:linear-gradient(135deg,#ffcb3a,#f27a2b);color:#fff;font-size:17px;font-weight:900;
+    letter-spacing:0.3px;text-shadow:0 1px 3px rgba(0,0,0,0.4);box-shadow:0 8px 30px -6px rgba(242,150,50,0.7);
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
+  .craft-btn:active{transform:scale(0.98)}
+  .craft-btn:disabled{background:rgba(0,0,0,0.3);box-shadow:none;cursor:not-allowed;opacity:0.7}
+  .craft-btn.pulse{animation:glowPulse 1.2s ease-in-out}
+  .auto{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.1);border:1px solid var(--border);
+    border-radius:16px;padding:10px 16px}
+  .auto-label{display:flex;flex-direction:column;align-items:flex-end;font-size:11px;line-height:1.2}
+  .auto-label small{opacity:0.55;font-size:9px}
+  .switch{width:44px;height:24px;background:rgba(0,0,0,0.4);border-radius:99px;position:relative;transition:background .2s;border:1px solid rgba(255,255,255,0.2)}
+  .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s}
+  .switch.on{background:#3fbf7f}
+  .switch.on::after{transform:translateX(20px)}
+  .floaters{position:absolute;inset:0;pointer-events:none;overflow:visible}
+  .floater{position:absolute;top:20px;left:50%;font-size:22px;font-weight:900;white-space:nowrap;
+    text-shadow:0 2px 8px rgba(0,0,0,0.5);animation:floatUp 1.2s ease-out forwards}
+  .floater.win{color:#a6f5c8}
+  .floater.loss{color:#f5a6b3}
+  @keyframes floatUp{0%{opacity:0;transform:translate(-50%,0) scale(0.8)}20%{opacity:1}
+    100%{opacity:0;transform:translate(-50%,-80px) scale(1.3)}}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 30px 6px rgba(255,220,100,0.5)}
+    50%{box-shadow:0 0 60px 14px rgba(255,235,140,0.9)}}
+  .result{margin-top:20px;padding:18px;border-radius:20px;border:1px solid;animation:fadeIn .3s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .result-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:900}
+  .result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media(max-width:700px){.result-grid{grid-template-columns:repeat(2,1fr)}}
+  .rbox{padding:10px 12px;border-radius:12px;border:1px solid;display:flex;align-items:center;gap:10px}
+  .rbox .ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .rbox .kicker{font-size:10px;letter-spacing:1.5px}
+  .rbox .val{font-size:18px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;margin-top:2px}
+  .sidebar{display:flex;flex-direction:column;gap:16px}
+  .inv-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .inv-title h2{margin:0;font-size:16px;font-weight:900;display:flex;align-items:center;gap:6px}
+  .reset{opacity:0.7;padding:4px}
+  .reset:hover{opacity:1}
+  .inv-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.05);margin-bottom:8px;transition:all .15s}
+  .inv-row.selected{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1)}
+  .chip{height:40px;width:40px;border-radius:10px;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .chip span{text-shadow:0 1px 2px rgba(0,0,0,0.4)}
+  .inv-meta{flex:1;min-width:0}
+  .inv-meta .name{font-size:12px;font-weight:700;color:#fff}
+  .inv-meta .sub{font-size:10px;opacity:0.6}
+  .inv-input{width:60px;height:32px;background:rgba(255,255,255,0.1);border:1px solid var(--border);
+    border-radius:6px;color:#fff;text-align:center;font-weight:900;padding:0 4px}
+  .btn-col{display:flex;flex-direction:column;gap:3px}
+  .mini-btn{height:15px;width:28px;border-radius:4px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+    color:rgba(255,255,255,0.85);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .mini-btn:hover{background:rgba(255,255,255,0.2)}
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{border-radius:12px;padding:12px;border:1px solid}
+  .stat .kicker{font-size:10px;letter-spacing:1.5px}
+  .stat .val{font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
+  .hint{font-size:11px;opacity:0.6;text-align:center;padding:0 8px;line-height:1.5}
+  .warn{margin-top:10px;font-size:12px;color:#ffc4c9}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="brand-badge">✨</div>
+      <div>
+        <h1>florr.io 合成模拟器</h1>
+        <div class="sub">Batch fuse · 5 cards per unit · 8 tiers</div>
+      </div>
+    </div>
+    <div class="rate-chip">
+      <span id="chipLabel">Lv1 🌱</span>
+      <span style="opacity:0.5">·</span>
+      <span class="big" id="chipRate">64%</span>
+      <span style="opacity:0.7;font-size:11px">per unit</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="levels" id="levels"><button class="lv-btn active" style="border-color: rgb(74, 144, 226); background: linear-gradient(135deg, rgb(74, 144, 226), rgba(74, 144, 226, 0.5)); box-shadow: rgb(74, 144, 226) 0px 6px 24px -6px;"><div class="icon">🌱</div>
+      <div class="lbl">L1</div>
+      <div class="rate">64%</div>
+      <div class="cnt">1</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">🌿</div>
+      <div class="lbl">L2</div>
+      <div class="rate">32%</div>
+      <div class="cnt">15</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">🌸</div>
+      <div class="lbl">L3</div>
+      <div class="rate">16%</div>
+      <div class="cnt">0</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">💎</div>
+      <div class="lbl">L4</div>
+      <div class="rate">8%</div>
+      <div class="cnt">0</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">✨</div>
+      <div class="lbl">L5</div>
+      <div class="rate">4%</div>
+      <div class="cnt">0</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">🔮</div>
+      <div class="lbl">L6</div>
+      <div class="rate">2%</div>
+      <div class="cnt">0</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">⭐</div>
+      <div class="lbl">L7</div>
+      <div class="rate">1%</div>
+      <div class="cnt">0</div></button><button class="lv-btn" style="border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); box-shadow: none;"><div class="icon">👑</div>
+      <div class="lbl">L8</div>
+      <div class="rate">MAX</div>
+      <div class="cnt">0</div></button></div>
+
+      <div class="batch">
+        <div class="batch-head">
+          <div>
+            <div class="kicker">Batch</div>
+            <div class="h-lg"><span id="runsDisplay">0</span> × 5 = <span class="accent" id="cardsDisplay">0</span> cards</div>
+          </div>
+          <div style="text-align:right">
+            <div class="kicker">Expected</div>
+            <div style="font-size:16px;font-weight:700">~<span id="expected">0.00</span> success</div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="sq" id="minusBtn" disabled="">−</button>
+          <input type="range" min="1" max="1" value="1" id="slider" disabled="">
+          <button class="sq" id="plusBtn" disabled="">+</button>
+          <input type="number" min="1" value="1" class="num-input" id="runsInput" max="1" disabled="">
+        </div>
+        <div class="presets" id="presets">
+          <button class="preset" data-n="1" disabled="">×1</button>
+          <button class="preset" data-n="2" disabled="">×2</button>
+          <button class="preset" data-n="5" disabled="">×5</button>
+          <button class="preset" data-n="10" disabled="">×10</button>
+          <button class="preset" data-n="20" disabled="">×20</button>
+          <button class="preset max" data-n="max" disabled="">MAX (<span id="maxRuns">0</span>)</button>
+        </div>
+        <div class="warn" id="warn" style="display: block;">Need at least 5 cards to craft.</div>
+      </div>
+
+      <div class="craft-row">
+        <button class="craft-btn" id="craftBtn" disabled="">⚡ NOT ENOUGH CARDS</button>
+        <div class="auto">
+          <div class="auto-label"><span>Auto</span><small>loop</small></div>
+          <div class="switch" id="autoSwitch"></div>
+        </div>
+        <div class="floaters" id="floaters"></div>
+      </div>
+
+      <div id="resultSlot"><div class="result" style="background:linear-gradient(135deg,#4a90e226,#ffffff0d);border-color:#4a90e266" key="1783209473789">
+    <div class="result-head">
+      <span>Batch result · Lv1 → Lv2</span>
+      <span style="font-size:11px;opacity:0.6;font-weight:400">1 runs</span>
+    </div>
+    <div class="result-grid">
+      <div class="rbox" style="background:#3fbf7f33;border-color:#3fbf7f66">
+        <div class="ic" style="background:#3fbf7f66">▲</div>
+        <div><div class="kicker">Success</div><div class="val">0</div></div>
+      </div><div class="rbox" style="background:#e0447a33;border-color:#e0447a66">
+        <div class="ic" style="background:#e0447a66">▼</div>
+        <div><div class="kicker">Fail</div><div class="val">1</div></div>
+      </div><div class="rbox" style="background:#f2c14133;border-color:#f2c14166">
+        <div class="ic" style="background:#f2c14166">✦</div>
+        <div><div class="kicker">+Lv2</div><div class="val">0</div></div>
+      </div><div class="rbox" style="background:#4a90e233;border-color:#4a90e266">
+        <div class="ic" style="background:#4a90e266">−</div>
+        <div><div class="kicker">Consumed</div><div class="val">4</div></div>
+      </div>
+    </div>
+  </div></div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="card">
+        <div class="inv-title">
+          <h2>📦 Inventory</h2>
+          <button class="reset" id="resetBtn" title="Reset">↺</button>
+        </div>
+        <div id="invList"><div class="inv-row selected">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #4a90e2, #4a90e266);border-color:#4a90e2;box-shadow:0 0 12px -2px #4a90e2">
+        <span>🌱</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv1 · Petal</div>
+        <div class="sub">64% / unit</div>
+      </div>
+      <input type="number" min="0" value="1" class="inv-input" data-lv="1">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="1" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="1" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #3fbf7f, #3fbf7f66);border-color:#3fbf7f;box-shadow:0 0 12px -2px #3fbf7f">
+        <span>🌿</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv2 · Bloom</div>
+        <div class="sub">32% / unit</div>
+      </div>
+      <input type="number" min="0" value="15" class="inv-input" data-lv="2">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="2" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="2" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #f2c141, #f2c14166);border-color:#f2c141;box-shadow:0 0 12px -2px #f2c141">
+        <span>🌸</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv3 · Blossom</div>
+        <div class="sub">16% / unit</div>
+      </div>
+      <input type="number" min="0" value="0" class="inv-input" data-lv="3">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="3" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="3" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #f28c3a, #f28c3a66);border-color:#f28c3a;box-shadow:0 0 12px -2px #f28c3a">
+        <span>💎</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv4 · Crystal</div>
+        <div class="sub">8% / unit</div>
+      </div>
+      <input type="number" min="0" value="0" class="inv-input" data-lv="4">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="4" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="4" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #e0447a, #e0447a66);border-color:#e0447a;box-shadow:0 0 12px -2px #e0447a">
+        <span>✨</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv5 · Radiant</div>
+        <div class="sub">4% / unit</div>
+      </div>
+      <input type="number" min="0" value="0" class="inv-input" data-lv="5">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="5" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="5" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #a55ee0, #a55ee066);border-color:#a55ee0;box-shadow:0 0 12px -2px #a55ee0">
+        <span>🔮</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv6 · Mythic</div>
+        <div class="sub">2% / unit</div>
+      </div>
+      <input type="number" min="0" value="0" class="inv-input" data-lv="6">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="6" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="6" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #3fc9e0, #3fc9e066);border-color:#3fc9e0;box-shadow:0 0 12px -2px #3fc9e0">
+        <span>⭐</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv7 · Astral</div>
+        <div class="sub">1% / unit</div>
+      </div>
+      <input type="number" min="0" value="0" class="inv-input" data-lv="7">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="7" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="7" data-op="-10">-10</button>
+      </div></div><div class="inv-row">
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, #ffe14a, #ffe14a66);border-color:#ffe14a;box-shadow:0 0 12px -2px #ffe14a">
+        <span>👑</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv8 · Eternal</div>
+        <div class="sub">MAX tier</div>
+      </div>
+      <input type="number" min="0" value="0" class="inv-input" data-lv="8">
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="8" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="8" data-op="-10">-10</button>
+      </div></div></div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin:0 0 12px;font-size:16px;font-weight:900">Lifetime Stats</h2>
+        <div class="stats-grid" id="statsGrid">
+    <div class="stat" style="background:#3fbf7f33;border-color:#3fbf7f66">
+      <div class="kicker">Success</div><div class="val">15</div>
+    </div>
+    <div class="stat" style="background:#e0447a33;border-color:#e0447a66">
+      <div class="kicker">Fail</div><div class="val">10</div>
+    </div>
+    <div class="stat" style="background:#f2c14133;border-color:#f2c14166">
+      <div class="kicker">Win rate</div><div class="val">60%</div>
+    </div>
+    <div class="stat" style="background:#4a90e233;border-color:#4a90e266">
+      <div class="kicker">Consumed</div><div class="val">99</div>
+    </div></div>
+      </div>
+
+      <div class="hint">Set a batch size, hit Craft. Each 5-card unit rolls independently. Fails lose 1–4 cards.</div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const LEVELS = [1,2,3,4,5,6,7,8];
+const RATE = {1:0.64,2:0.32,3:0.16,4:0.08,5:0.04,6:0.02,7:0.01,8:0};
+const ICON = {1:"🌱",2:"🌿",3:"🌸",4:"💎",5:"✨",6:"🔮",7:"⭐",8:"👑"};
+const NAME = {1:"Petal",2:"Bloom",3:"Blossom",4:"Crystal",5:"Radiant",6:"Mythic",7:"Astral",8:"Eternal"};
+const COLOR = {1:"#4a90e2",2:"#3fbf7f",3:"#f2c141",4:"#f28c3a",5:"#e0447a",6:"#a55ee0",7:"#3fc9e0",8:"#ffe14a"};
+
+const state = {
+  inv: {1:100,2:0,3:0,4:0,5:0,6:0,7:0,8:0},
+  selected: 1,
+  runs: 1,
+  stats: {success:0, fail:0, consumed:0, gained:0},
+  auto: false,
+  crafting: false,
+  lastBatch: null,
+};
+
+const $ = id => document.getElementById(id);
+const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
+
+function maxRuns(){ return Math.floor(state.inv[state.selected] / 5); }
+
+function renderLevels(){
+  const el = $("levels"); el.innerHTML = "";
+  LEVELS.forEach(l => {
+    const active = state.selected === l;
+    const btn = document.createElement("button");
+    btn.className = "lv-btn" + (active ? " active" : "");
+    btn.style.borderColor = active ? COLOR[l] : "rgba(255,255,255,0.15)";
+    btn.style.background = active
+      ? `linear-gradient(135deg, ${COLOR[l]}, ${COLOR[l]}80)` : "rgba(255,255,255,0.06)";
+    btn.style.boxShadow = active ? `0 6px 24px -6px ${COLOR[l]}` : "none";
+    btn.innerHTML = `<div class="icon">${ICON[l]}</div>
+      <div class="lbl">L${l}</div>
+      <div class="rate">${l===8?"MAX":(RATE[l]*100).toFixed(0)+"%"}</div>
+      <div class="cnt">${state.inv[l]}</div>`;
+    btn.onclick = () => { state.selected = l; state.runs = Math.max(1, Math.min(state.runs, maxRuns()||1)); render(); };
+    el.appendChild(btn);
+  });
+}
+
+function renderBatch(){
+  const mx = maxRuns();
+  state.runs = clamp(state.runs, 1, Math.max(1, mx));
+  const runs = mx === 0 ? 0 : state.runs;
+  $("runsDisplay").textContent = runs;
+  $("cardsDisplay").textContent = runs * 5;
+  $("expected").textContent = (RATE[state.selected] * runs).toFixed(2);
+  const slider = $("slider");
+  slider.max = Math.max(1, mx);
+  slider.value = Math.max(1, runs);
+  slider.disabled = mx === 0;
+  const inp = $("runsInput");
+  inp.value = Math.max(1, runs);
+  inp.max = Math.max(1, mx);
+  inp.disabled = mx === 0;
+  $("minusBtn").disabled = mx === 0 || runs <= 1;
+  $("plusBtn").disabled = mx === 0 || runs >= mx;
+  $("maxRuns").textContent = mx;
+  document.querySelectorAll(".preset").forEach(p => {
+    const n = p.dataset.n;
+    if (n === "max") { p.disabled = mx === 0; return; }
+    const num = +n;
+    p.disabled = mx < num;
+    p.classList.toggle("active", runs === num && mx >= num);
+  });
+  $("warn").style.display = mx === 0 ? "block" : "none";
+  const chipLbl = $("chipLabel");
+  chipLbl.textContent = `Lv${state.selected} ${ICON[state.selected]}`;
+  $("chipRate").textContent = state.selected === 8 ? "MAX" : (RATE[state.selected]*100).toFixed(0) + "%";
+  const btn = $("craftBtn");
+  const canCraft = state.selected < 8 && mx > 0 && !state.crafting;
+  btn.disabled = !canCraft;
+  btn.textContent = state.selected === 8
+    ? "⚡ MAX LEVEL"
+    : mx === 0 ? "⚡ NOT ENOUGH CARDS"
+    : `⚡ CRAFT ×${runs} · ${(RATE[state.selected]*100).toFixed(0)}%/unit`;
+}
+
+function renderInv(){
+  const el = $("invList"); el.innerHTML = "";
+  LEVELS.forEach(l => {
+    const row = document.createElement("div");
+    row.className = "inv-row" + (state.selected === l ? " selected" : "");
+    row.innerHTML = `
+      <button class="chip" style="background:radial-gradient(circle at 30% 20%, ${COLOR[l]}, ${COLOR[l]}66);border-color:${COLOR[l]};box-shadow:0 0 12px -2px ${COLOR[l]}">
+        <span>${ICON[l]}</span>
+      </button>
+      <div class="inv-meta">
+        <div class="name">Lv${l} · ${NAME[l]}</div>
+        <div class="sub">${l===8?"MAX tier":(RATE[l]*100).toFixed(0)+"% / unit"}</div>
+      </div>
+      <input type="number" min="0" value="${state.inv[l]}" class="inv-input" data-lv="${l}" />
+      <div class="btn-col">
+        <button class="mini-btn" data-lv="${l}" data-op="+10">+10</button>
+        <button class="mini-btn" data-lv="${l}" data-op="-10">-10</button>
+      </div>`;
+    row.querySelector(".chip").onclick = () => { state.selected = l; render(); };
+    row.querySelector(".inv-input").oninput = (e) => {
+      const v = Math.max(0, parseInt(e.target.value||"0",10) || 0);
+      state.inv[l] = v; render();
+    };
+    row.querySelectorAll(".mini-btn").forEach(b => {
+      b.onclick = () => {
+        const op = b.dataset.op;
+        state.inv[l] = Math.max(0, state.inv[l] + (op==="+10"?10:-10));
+        render();
+      };
+    });
+    el.appendChild(row);
+  });
+}
+
+function renderStats(){
+  const total = state.stats.success + state.stats.fail;
+  const wr = total ? Math.round(state.stats.success/total*100) : 0;
+  const boxes = [
+    ["Success", state.stats.success, "#3fbf7f"],
+    ["Fail", state.stats.fail, "#e0447a"],
+    ["Win rate", wr+"%", "#f2c141"],
+    ["Consumed", state.stats.consumed, "#4a90e2"],
+  ];
+  $("statsGrid").innerHTML = boxes.map(([l,v,c]) => `
+    <div class="stat" style="background:${c}33;border-color:${c}66">
+      <div class="kicker">${l}</div><div class="val">${v}</div>
+    </div>`).join("");
+}
+
+function renderResult(){
+  const slot = $("resultSlot");
+  if (!state.lastBatch) { slot.innerHTML = ""; return; }
+  const b = state.lastBatch;
+  const c = COLOR[b.level];
+  const boxes = [
+    ["▲","Success",b.success,"#3fbf7f"],
+    ["▼","Fail",b.fail,"#e0447a"],
+    ["✦",`+Lv${b.level+1}`,b.gained,"#f2c141"],
+    ["−","Consumed",b.consumed,"#4a90e2"],
+  ];
+  slot.innerHTML = `<div class="result" style="background:linear-gradient(135deg,${c}26,#ffffff0d);border-color:${c}66" key="${b.ts}">
+    <div class="result-head">
+      <span>Batch result · Lv${b.level} → Lv${b.level+1}</span>
+      <span style="font-size:11px;opacity:0.6;font-weight:400">${b.runs} runs</span>
+    </div>
+    <div class="result-grid">
+      ${boxes.map(([i,l,v,cc])=>`<div class="rbox" style="background:${cc}33;border-color:${cc}66">
+        <div class="ic" style="background:${cc}66">${i}</div>
+        <div><div class="kicker">${l}</div><div class="val">${v}</div></div>
+      </div>`).join("")}
+    </div>
+  </div>`;
+}
+
+function floater(kind, text){
+  const el = document.createElement("div");
+  el.className = "floater " + (kind==="success"?"win":"loss");
+  el.textContent = (kind==="success"?"▲ ":"▼ ") + text;
+  $("floaters").appendChild(el);
+  setTimeout(()=>el.remove(), 1300);
+}
+
+function render(){ renderLevels(); renderBatch(); renderInv(); renderStats(); renderResult(); $("autoSwitch").classList.toggle("on", state.auto); }
+
+function craft(){
+  if (state.crafting) return;
+  const lvl = state.selected;
+  const n = state.runs;
+  if (lvl === 8 || n < 1 || maxRuns() < n) return;
+  state.crafting = true;
+  $("craftBtn").classList.add("pulse");
+  render();
+  setTimeout(() => {
+    let success=0, fail=0, consumed=0, gained=0;
+    for (let i=0;i<n;i++){
+      if (Math.random() < RATE[lvl]) { success++; consumed += 5; gained++; }
+      else { fail++; consumed += 1 + Math.floor(Math.random()*4); }
+    }
+    const kept = n*5 - consumed;
+    const nextLvl = Math.min(8, lvl+1);
+    state.inv[lvl] = state.inv[lvl] - n*5 + kept;
+    state.inv[nextLvl] += gained;
+    state.stats.success += success; state.stats.fail += fail;
+    state.stats.consumed += consumed; state.stats.gained += gained;
+    state.lastBatch = {level:lvl, runs:n, success, fail, consumed, gained, ts:Date.now()};
+    if (success>0) floater("success", `+${success} Lv${nextLvl} ${ICON[nextLvl]}`);
+    if (fail>0) floater("fail", `${fail} fail · -${consumed - success*5} Lv${lvl}`);
+    state.crafting = false;
+    $("craftBtn").classList.remove("pulse");
+    render();
+    if (state.auto && state.selected < 8 && maxRuns() > 0) setTimeout(craft, 260);
+    else if (state.auto) { state.auto = false; render(); }
+  }, 420);
+}
+
+// Wire up controls
+$("slider").oninput = (e) => { state.runs = +e.target.value; renderBatch(); };
+$("runsInput").oninput = (e) => { state.runs = Math.max(1, parseInt(e.target.value||"1",10)||1); renderBatch(); };
+$("minusBtn").onclick = () => { state.runs = Math.max(1, state.runs-1); renderBatch(); };
+$("plusBtn").onclick = () => { state.runs = Math.min(maxRuns(), state.runs+1); renderBatch(); };
+document.querySelectorAll(".preset").forEach(p => {
+  p.onclick = () => {
+    const n = p.dataset.n;
+    state.runs = n === "max" ? Math.max(1, maxRuns()) : Math.max(1, Math.min(+n, maxRuns()||1));
+    renderBatch();
+  };
+});
+$("craftBtn").onclick = craft;
+$("autoSwitch").onclick = () => {
+  state.auto = !state.auto;
+  render();
+  if (state.auto && !state.crafting && state.selected < 8 && maxRuns() > 0) craft();
+};
+$("resetBtn").onclick = () => {
+  state.inv = {1:100,2:0,3:0,4:0,5:0,6:0,7:0,8:0};
+  state.stats = {success:0,fail:0,consumed:0,gained:0};
+  state.selected = 1; state.runs = 1; state.lastBatch = null; state.auto = false;
+  render();
+};
+
+render();
+</script>
+
+
+</body></html>
